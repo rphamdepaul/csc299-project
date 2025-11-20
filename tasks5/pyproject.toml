@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spec-kit-task-manager"
+version = "0.1.0"
+description = "Task manager with JSON storage and CLI"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name = "Spec-Kit Team"}
+]
+
+[project.scripts]
+task-manager = "task_manager.cli:main"
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203", "W503"]
+
+[tool.pytest.ini_options]
+testpaths = ["task_manager"]
+python_files = "test_*.py"
