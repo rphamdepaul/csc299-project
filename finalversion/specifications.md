@@ -68,3 +68,24 @@ The terminal-based chat interface allows users to interact with the PKMS and Tas
 - `search_notes <query>`: Search notes by query.
 - `add_task <title>`: Add a new task.
 - `list_tasks`: List all tasks.
+
+## CLI Entrypoint
+
+### Overview
+The CLI entrypoint provides commands to manage notes and tasks directly from the terminal. It supports adding, listing, and managing notes and tasks.
+
+### Core Functionalities
+- **Notes Management**:
+  - Add a note with a unique ID and content.
+  - List all notes.
+- **Tasks Management**:
+  - Add a task with a title.
+  - List all tasks.
+
+### Implementation Details
+- The CLI is implemented using the `argparse` library.
+- Notes and tasks are managed using the `PKMS` and `TasksAdapter` classes, respectively.
+
+### File Structure
+- Implementation: `src/finalversion/cli.py`
+- Tests: `finalversion/tests/test_cli.py`

@@ -9,28 +9,21 @@ import json
 import uuid
 import os
 import tempfile
-from datetime import datetime, timezone  # Add timezone import
+from datetime import datetime
 from typing import List, Dict, Optional
-import threading
-import time
 
 DEFAULT_FILE = os.path.join(os.path.dirname(__file__), "tasks_new.json")
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat() + "Z"
+    return datetime.utcnow().isoformat() + "Z"
 
 
 class TaskManager:
     def __init__(self, file_path: str = DEFAULT_FILE):
         self.file_path = file_path
         self.tasks: List[Dict] = []
-        self.notifications = []  # Store notifications for testing
         self._load()
-        print("DEBUG: Starting notification worker thread")
-        self.notification_thread = threading.Thread(target=self._notification_worker, daemon=True)
-        self.notification_thread.start()
-        print("DEBUG: Notification worker thread started")
 
     def _load(self):
         try:
@@ -56,9 +49,7 @@ class TaskManager:
     def _save(self):
         self._atomic_write(self.tasks)
 
-    def add_task(self, title: str, notes: str = "", tags: Optional[List[str]] = None, due: Optional[str] = None, priority: str = "medium") -> Dict:
-        if priority not in ["low", "medium", "high"]:
-            raise ValueError("Priority must be one of: low, medium, high.")
+    def add_task(self, title: str, notes: str = "", tags: Optional[List[str]] = None, due: Optional[str] = None) -> Dict:
         tid = str(uuid.uuid4())
         task = {
             "id": tid,
@@ -66,7 +57,6 @@ class TaskManager:
             "notes": notes or "",
             "tags": tags or [],
             "due": due,
-            "priority": priority,
             "status": "todo",
             "created_at": _now_iso(),
             "updated_at": _now_iso(),
@@ -78,13 +68,10 @@ class TaskManager:
         self._save()
         return task
 
-    def list_tasks(self, include_deleted: bool = False, priority_filter: Optional[str] = None) -> List[Dict]:
-        tasks = self.tasks if include_deleted else [t for t in self.tasks if not t.get("deleted", False)]
-        if priority_filter:
-            if priority_filter not in ["low", "medium", "high"]:
-                raise ValueError("Priority filter must be one of: low, medium, high.")
-            tasks = [t for t in tasks if t.get("priority") == priority_filter]
-        return tasks
+    def list_tasks(self, include_deleted: bool = False) -> List[Dict]:
+        if include_deleted:
+            return list(self.tasks)
+        return [t for t in self.tasks if not t.get("deleted", False)]
 
     def get_task(self, task_id: str, include_deleted: bool = False) -> Optional[Dict]:
         for t in self.tasks:
@@ -107,7 +94,7 @@ class TaskManager:
         self._record_history(t, "update")
         changed = False
         for k, v in fields.items():
-            if k in ["title", "notes", "tags", "due", "status", "recurrence", "priority"]:
+            if k in ["title", "notes", "tags", "due", "status", "recurrence"]:
                 t[k] = v
                 changed = True
         if changed:
@@ -159,25 +146,6 @@ class TaskManager:
         t["updated_at"] = _now_iso()
         self._save()
         return True
-
-    def _notification_worker(self):
-        while True:
-            now = datetime.now(timezone.utc)
-            print(f"DEBUG: Current time: {now}")
-            print(f"DEBUG: Total tasks in memory: {len(self.tasks)}")
-            for task in self.tasks:
-                print(f"DEBUG: Task details: {task}")
-                if task.get("due") and not task.get("notified"):
-                    due_time = datetime.fromisoformat(task["due"][:-1]).replace(tzinfo=timezone.utc)
-                    print(f"DEBUG: Task due time: {due_time}")
-                    if now >= due_time:
-                        notification = f"Notification: Task '{task['title']}' is due!"
-                        print(f"DEBUG: Triggering notification: {notification}")
-                        self.notifications.append(notification)
-                        print(notification)
-                        task["notified"] = True
-                        self._save()
-            time.sleep(60)  # Check every minute
 
 
 if __name__ == "__main__":

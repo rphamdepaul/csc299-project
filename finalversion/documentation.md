@@ -177,3 +177,32 @@ adapter.delete_task('task_id')
 ```python
 adapter.update_task('task_id', title='Updated Title')
 ```
+
+---
+
+## CLI Entrypoint
+
+### Overview
+The CLI entrypoint allows users to manage notes and tasks directly from the terminal. It provides a simple interface for interacting with the `PKMS` and `TasksAdapter` modules.
+
+### Usage
+
+#### Adding a Note
+```bash
+python src/finalversion/cli.py notes add <id> <content>
+```
+
+#### Listing Notes
+```bash
+python src/finalversion/cli.py notes list
+```
+
+#### Adding a Task
+```bash
+python src/finalversion/cli.py tasks add <title>
+```
+
+#### Listing Tasks
+```bash
+python src/finalversion/cli.py tasks list
+```

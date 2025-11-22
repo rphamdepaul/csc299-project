@@ -76,3 +76,17 @@
 ### Test Results
 - **Results**: All 5 tests passed.
 - **Execution Time**: 0.05 seconds
+
+## CLI Entrypoint Tests
+
+### Test Cases
+1. **Add and List Notes**: Verify that notes can be added and listed via the CLI.
+2. **Add and List Tasks**: Check that tasks can be added and listed via the CLI.
+
+### Test Framework
+- **Framework**: Pytest
+- **Test File**: `finalversion/tests/test_cli.py`
+
+### Test Results
+- **Results**: All 2 tests passed.
+- **Execution Time**: 0.63 seconds
