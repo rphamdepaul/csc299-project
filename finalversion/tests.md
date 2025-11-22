@@ -51,3 +51,28 @@
 ### Test Framework
 - **Framework**: Pytest
 - **Test File**: `tasks3/src/tasks3/improved_task_manager.py`
+
+## Terminal Chat Interface Tests
+
+### Test Cases
+1. **Basic Commands**: Verify that the chat interface handles basic commands like adding and listing notes and tasks.
+
+### Test Framework
+- **Framework**: Pytest
+- **Test File**: `finalversion/tests/test_chat.py`
+
+## TasksAdapter Tests
+
+### Test Cases
+1. **Add Task**: Verify that a task can be added with a title.
+2. **List Tasks**: Check that all tasks can be listed.
+3. **Delete Task**: Ensure a task can be deleted by its ID.
+4. **Update Task**: Validate that task details can be updated.
+
+### Test Framework
+- **Framework**: Pytest
+- **Test File**: `finalversion/tests/test_tasks_adapter.py`
+
+### Test Results
+- **Results**: All 5 tests passed.
+- **Execution Time**: 0.05 seconds
