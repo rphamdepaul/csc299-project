@@ -14,6 +14,12 @@
 - **Framework**: Pytest
 - **Test File**: `finalversion/tests/test_pkms.py`
 
+### Test Results
+
+#### PKMS Tests
+- **Results**: All 6 tests passed.
+- **Execution Time**: 0.09 seconds
+
 ## Task Manager Tests
 
 ### Test Cases
@@ -25,3 +31,23 @@
 ### Test Framework
 - **Framework**: Pytest
 - **Test File**: `finalversion/tests/test_task_prioritization.py`
+
+### Test Results
+
+#### Task Manager Tests
+- **Results**: All 4 tests passed.
+- **Execution Time**: 0.09 seconds
+
+## Task Manager Tests (from tasks3)
+
+### Test Cases
+1. **Add Task**: Verify that a task can be added with all details.
+2. **List Tasks**: Check that tasks can be listed with optional filters for priority and deleted status.
+3. **Get Task**: Ensure task details can be retrieved by ID.
+4. **Update Task**: Validate that task details can be updated.
+5. **Delete Task**: Test both soft and hard deletion of tasks.
+6. **Undo Changes**: Verify that changes to tasks can be undone.
+
+### Test Framework
+- **Framework**: Pytest
+- **Test File**: `tasks3/src/tasks3/improved_task_manager.py`
