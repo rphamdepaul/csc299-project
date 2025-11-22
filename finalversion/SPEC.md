@@ -35,3 +35,10 @@ This document outlines the specifications for the CSC299 project, including the 
   - Add, list, and delete notes.
   - Add, list, and delete tasks.
 - **Testing**: Refer to `tests.md` for test cases.
+
+### 5. TasksAdapter
+- **Features**: Simplifies interaction with the TaskManager.
+  - Add, list, update, and delete tasks.
+- **Testing**: Refer to `tests.md` for test cases.
+- **Status**: Completed
+- **Details**: The TasksAdapter module has been implemented and tested. It provides a simplified interface for managing tasks using the TaskManager.

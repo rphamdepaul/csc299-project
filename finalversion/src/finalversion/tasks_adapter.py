@@ -1,5 +1,5 @@
 import json
-from src.finalversion.improved_task_manager import TaskManager
+from .improved_task_manager import TaskManager
 
 class TasksAdapter:
     def __init__(self, tasks_file):

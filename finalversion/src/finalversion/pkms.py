@@ -50,3 +50,19 @@ class PKMS:
                 self._atomic_save(data)
             else:
                 raise ValueError(f"Note with ID {note_id} does not exist.")
+
+    def update(self, note_id, new_content):
+        """Update the content of an existing note."""
+        with self.lock:
+            data = self._load_data()
+            if note_id not in data:
+                raise ValueError(f"Note with ID {note_id} does not exist.")
+            data[note_id] = new_content
+            self._atomic_save(data)
+
+    def export_notes(self, export_path):
+        """Export all notes to a specified file path."""
+        with self.lock:
+            data = self._load_data()
+            with open(export_path, 'w') as export_file:
+                json.dump(data, export_file, indent=4)

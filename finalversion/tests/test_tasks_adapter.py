@@ -1,9 +1,9 @@
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../finalversion/src')))
 
 import pytest
-from src.finalversion.tasks_adapter import TasksAdapter
+from finalversion.tasks_adapter import TasksAdapter
 import tempfile
 
 @pytest.fixture
