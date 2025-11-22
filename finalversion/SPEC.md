@@ -26,6 +26,8 @@ This document outlines the specifications for the CSC299 project, including the 
   - Add, list, and search notes.
   - Add and list tasks.
 - **Testing**: Refer to `tests.md` for test cases.
+- **Status**: Completed
+- **Details**: The terminal chat interface has been implemented. It allows users to interact with the PKMS and TaskManager via terminal commands. Users can add, list, and search notes, as well as add and list tasks.
 
 ### 4. CLI Entrypoint
 - **Features**: Manage notes and tasks via terminal commands.
