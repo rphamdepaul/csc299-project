@@ -13,12 +13,10 @@
 - **Test File**: `finalversion/tests/test_pkms.py`
 
 ### Test Results
-
-#### PKMS Tests
 - **Results**: All 6 tests passed.
 - **Execution Time**: 0.09 seconds
 
-## Task Manager Tests
+## TaskManager Tests
 
 ### Test Cases
 1. **Add Task with Priority**: Verify that a task can be added with a valid priority.
@@ -31,24 +29,8 @@
 - **Test File**: `finalversion/tests/test_task_prioritization.py`
 
 ### Test Results
-
-#### Task Manager Tests
 - **Results**: All 4 tests passed.
 - **Execution Time**: 0.09 seconds
-
-## Task Manager Tests (from tasks3)
-
-### Test Cases
-1. **Add Task**: Verify that a task can be added with all details.
-2. **List Tasks**: Check that tasks can be listed with optional filters for priority and deleted status.
-3. **Get Task**: Ensure task details can be retrieved by ID.
-4. **Update Task**: Validate that task details can be updated.
-5. **Delete Task**: Test both soft and hard deletion of tasks.
-6. **Undo Changes**: Verify that changes to tasks can be undone.
-
-### Test Framework
-- **Framework**: Pytest
-- **Test File**: `tasks3/src/tasks3/improved_task_manager.py`
 
 ## Terminal Chat Interface Tests
 
@@ -58,6 +40,10 @@
 ### Test Framework
 - **Framework**: Pytest
 - **Test File**: `finalversion/tests/test_chat.py`
+
+### Test Results
+- **Results**: All tests passed.
+- **Execution Time**: 0.05 seconds
 
 ## TasksAdapter Tests
 
@@ -72,7 +58,7 @@
 - **Test File**: `finalversion/tests/test_tasks_adapter.py`
 
 ### Test Results
-- **Results**: All 5 tests passed.
+- **Results**: All tests passed.
 - **Execution Time**: 0.05 seconds
 
 ## CLI Entrypoint Tests
@@ -86,5 +72,5 @@
 - **Test File**: `finalversion/tests/test_cli.py`
 
 ### Test Results
-- **Results**: All 2 tests passed.
+- **Results**: All tests passed.
 - **Execution Time**: 0.63 seconds

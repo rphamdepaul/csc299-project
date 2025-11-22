@@ -1,29 +1,35 @@
-PKMS / Task CLI Project Specification
+# Specifications
 
-Overview
+## Overview
+This document outlines the specifications for the CSC299 project, including the PKMS, TaskManager, and terminal chat interface. The software is modular and designed for extensibility.
 
-This project provides a small CLI-based Personal Knowledge Management System (PKMS) and task management integration.
+## Modules
 
-Goals
+### 1. Personal Knowledge Management System (PKMS)
+- **Features**: Add, list, retrieve, search, and delete notes.
+- **Storage**: Notes are stored in a JSON file.
+- **Concurrency**: Thread-safe operations using locks.
+- **Testing**: Refer to `tests.md` for test cases.
 
-- PKMS: JSON-backed notes store with add/list/get/search/delete
-- Task integration: reuse existing TaskManager in `tasks3` as adapter
-- Terminal chat interface: search and interact with notes and tasks
-- AI agents: local stubs that can summarize notes or create tasks
-- Tests: pytest-based unit tests for core functionality
+### 2. TaskManager
+- **Features**: Add, list, update, delete, and undo tasks.
+- **Enhancements**:
+  - Task prioritization (low, medium, high).
+  - Notifications for tasks with due dates.
+- **Storage**: Tasks are stored in a JSON file.
+- **Concurrency**: Thread-safe operations using locks.
+- **Testing**: Refer to `tests.md` for test cases.
 
-Files to edit throughout development
+### 3. Terminal Chat Interface
+- **Features**: Interact with PKMS and TaskManager via terminal commands.
+- **Commands**:
+  - Add, list, and search notes.
+  - Add and list tasks.
+- **Testing**: Refer to `tests.md` for test cases.
 
-- `src/finalversion/pkms.py` - PKMS core implementation
-- `src/finalversion/tasks_adapter.py` - lightweight wrapper around `tasks3` TaskManager
-- `src/finalversion/cli.py` - command-line entrypoint
-- `src/finalversion/chat.py` - terminal chat UI
-- `src/finalversion/agents.py` - simple agent implementations
-- `tests/` - pytest tests for pkms, tasks adapter, agents, and CLI
-
-Acceptance criteria
-
-- All tests must pass under pytest in the workspace
-- No new files in `tasks3/` (we reuse existing module there)
-- Each logical change must be accompanied by SPEC, tests, and documentation updates
-
+### 4. CLI Entrypoint
+- **Features**: Manage notes and tasks via terminal commands.
+- **Commands**:
+  - Add, list, and delete notes.
+  - Add, list, and delete tasks.
+- **Testing**: Refer to `tests.md` for test cases.

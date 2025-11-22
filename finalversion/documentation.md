@@ -42,9 +42,6 @@ pkms.delete('note_id')
 - Atomic saves ensure data integrity.
 - Thread-safe operations using locks.
 
-### Testing
-Refer to `tests.md` for details on test cases.
-
 ---
 
 ## Task Management System
@@ -80,47 +77,6 @@ Notifications are printed to the console when a task is due.
 
 ---
 
-## Task Manager (from tasks3)
-
-### Overview
-The Task Manager is a module for managing personal tasks. It provides functionalities to add, list, retrieve, update, delete, and undo changes to tasks. Tasks are stored in a JSON file (`tasks_new.json`), ensuring data persistence.
-
-### Usage
-
-#### Adding a Task
-```python
-from src.finalversion.improved_task_manager import TaskManager
-tm = TaskManager('path/to/tasks.json')
-task = tm.add_task('Task Title', notes='Details about the task', tags=['tag1'], due='2025-11-22T15:00:00Z', priority='high')
-```
-
-#### Listing Tasks
-```python
-tasks = tm.list_tasks(priority_filter='low', include_deleted=False)
-```
-
-#### Retrieving a Task
-```python
-task = tm.get_task('task_id')
-```
-
-#### Updating a Task
-```python
-tm.update_task('task_id', title='Updated Title', priority='medium')
-```
-
-#### Deleting a Task
-```python
-tm.delete_task('task_id', hard=True)
-```
-
-#### Undoing Changes
-```python
-tm.undo('task_id', steps=1)
-```
-
----
-
 ## Terminal Chat Interface
 
 ### Overview
@@ -148,7 +104,7 @@ python src/finalversion/chat.py
 ## TasksAdapter
 
 ### Overview
-The `TasksAdapter` provides a simplified interface for managing tasks using the `TaskManager` from `tasks3`.
+The `TasksAdapter` provides a simplified interface for managing tasks using the `TaskManager`.
 
 ### Usage
 
