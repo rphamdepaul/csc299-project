@@ -9,6 +9,9 @@
 - **Search Notes**: Search for notes containing a specific query.
 - **Delete Note**: Remove a note by its identifier.
 
+### New Features
+- **Task Prioritization**: Tasks can have a priority level (low, medium, high). Tasks can also be filtered by priority.
+
 ### Implementation Details
 - Notes are stored in a JSON file.
 - Atomic saves ensure data integrity.

@@ -44,3 +44,24 @@ pkms.delete('note_id')
 
 ### Testing
 Refer to `tests.md` for details on test cases.
+
+---
+
+## Task Management System
+
+### New Features
+- **Task Prioritization**: Tasks can have a priority level (low, medium, high). Tasks can also be filtered by priority.
+
+### Usage
+
+#### Adding a Task with Priority
+```python
+from tasks3.src.tasks3.improved_task_manager import TaskManager
+tm = TaskManager('path/to/tasks.json')
+task = tm.add_task('Task Title', priority='high')
+```
+
+#### Listing Tasks with Priority Filter
+```python
+tasks = tm.list_tasks(priority_filter='low')
+```
