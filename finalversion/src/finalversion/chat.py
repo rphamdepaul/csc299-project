@@ -1,6 +1,12 @@
+import sys
+import os
+
+# Ensure the `src` directory is in the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
 import readline
 from src.finalversion.pkms import PKMS
-from tasks3.src.tasks3.improved_task_manager import TaskManager
+from src.finalversion.improved_task_manager import TaskManager
 
 def main():
     print("Welcome to the Terminal Chat Interface!")

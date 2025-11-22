@@ -1,5 +1,3 @@
-# Tests
-
 ## PKMS Tests
 
 ### Test Cases

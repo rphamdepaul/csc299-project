@@ -57,7 +57,7 @@ Refer to `tests.md` for details on test cases.
 
 #### Adding a Task with Priority
 ```python
-from tasks3.src.tasks3.improved_task_manager import TaskManager
+from src.finalversion.improved_task_manager import TaskManager
 tm = TaskManager('path/to/tasks.json')
 task = tm.add_task('Task Title', priority='high')
 ```
@@ -69,7 +69,7 @@ tasks = tm.list_tasks(priority_filter='low')
 
 #### Adding a Task with Due Date
 ```python
-from tasks3.src.tasks3.improved_task_manager import TaskManager
+from src.finalversion.improved_task_manager import TaskManager
 tm = TaskManager('path/to/tasks.json')
 due_time = "2025-11-22T15:00:00Z"
 task = tm.add_task('Task Title', due=due_time)
@@ -89,7 +89,7 @@ The Task Manager is a module for managing personal tasks. It provides functional
 
 #### Adding a Task
 ```python
-from tasks3.src.tasks3.improved_task_manager import TaskManager
+from src.finalversion.improved_task_manager import TaskManager
 tm = TaskManager('path/to/tasks.json')
 task = tm.add_task('Task Title', notes='Details about the task', tags=['tag1'], due='2025-11-22T15:00:00Z', priority='high')
 ```
