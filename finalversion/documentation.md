@@ -15,22 +15,25 @@ pkms = PKMS('path/to/storage.json')
 
 #### Adding a Note
 ```python
-pkms.add('note_id', 'This is a note.')
+pkms.add('Note Title', 'This is the content of the note.')
 ```
 
 #### Listing Notes
 ```python
-note_ids = pkms.list()
+notes = pkms.list()
+# Returns a list of note objects with their details
 ```
 
 #### Retrieving a Note
 ```python
-content = pkms.get('note_id')
+note = pkms.get('note_id')
+# Returns the note object or None if not found
 ```
 
 #### Searching Notes
 ```python
 results = pkms.search('query')
+# Returns a list of note objects matching the query
 ```
 
 #### Deleting a Note
@@ -39,8 +42,9 @@ pkms.delete('note_id')
 ```
 
 ### Implementation Details
-- Atomic saves ensure data integrity.
-- Thread-safe operations using locks.
+- **Thread Safety**: All operations are thread-safe using locks.
+- **Validation**: Input is sanitized to ensure data integrity.
+- **Error Handling**: Raises appropriate exceptions for invalid operations.
 
 ---
 

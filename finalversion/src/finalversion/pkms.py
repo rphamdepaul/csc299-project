@@ -24,6 +24,10 @@ class PKMS:
     def add(self, title, content):
         with self.lock:
             data = self._load_data()
+            # Check for duplicate titles
+            if any(note["title"] == title for note in data.values()):
+                raise ValueError(f"A note with the title '{title}' already exists.")
+
             # Find the lowest unused ID greater than 0
             existing_ids = {note["id"] for note in data.values() if "id" in note}
             new_id = 1
@@ -46,7 +50,7 @@ class PKMS:
 
     def list(self):
         with self.lock:
-            return list(self._load_data().keys())
+            return list(self._load_data().values())
 
     def get(self, note_id):
         with self.lock:
@@ -57,10 +61,10 @@ class PKMS:
         query = query.strip('"')  # Remove extra quotation marks from the query
         with self.lock:
             data = self._load_data()
-            return {
-                k: v for k, v in data.items()
-                if query.lower() in v.get("title", "").lower() or query.lower() in v.get("content", "").lower()
-            }
+            return [
+                note for note in data.values()
+                if query.lower() in note.get("title", "").lower() or query.lower() in note.get("content", "").lower()
+            ]
 
     def delete(self, note_id):
         with self.lock:

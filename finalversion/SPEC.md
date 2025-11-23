@@ -7,6 +7,9 @@ This document outlines the specifications for the CSC299 project, including the 
 
 ### 1. Personal Knowledge Management System (PKMS)
 - **Features**: Add, list, retrieve, search, and delete notes.
+  - `add`: Ensures unique titles for notes and sanitizes input.
+  - `list`: Returns a list of all note objects with their details.
+  - `search`: Returns a list of note objects matching the query in title or content.
 - **Storage**: Notes are stored in a JSON file.
 - **Concurrency**: Thread-safe operations using locks.
 - **Testing**: Refer to `tests.md` for test cases.

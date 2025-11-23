@@ -76,10 +76,10 @@ def main():
         "list_tasks": lambda _: print("\n".join(["Tasks:"] + [f"- {task['user_id']}: {task['title']}" for task in task_manager.list_tasks()])),
         "search_tasks": lambda args: (
             query := " ".join(args).strip(),  # Process the query
+            tasks := task_manager.search_tasks(query),  # Use TasksAdapter.search_tasks
             print("\n".join(["Search Results:"] + [
-                f"- {task['user_id']}: {task['title']} {task['notes']}"
-                for task in sorted(task_manager.list_tasks(), key=lambda x: x['user_id'])
-                if query.lower() in task['title'].lower() or query.lower() in task['notes'].lower()
+                f"- {task_id}: {task['title']} {task['notes']}"
+                for task_id, task in tasks.items()
             ]))
         ),
         "delete_all_tasks": lambda _: delete_all_tasks(),
