@@ -46,7 +46,23 @@ def test_update_task(temp_tasks_file):
 
 def test_search_tasks(temp_tasks_file):
     adapter = TasksAdapter(temp_tasks_file)
-    adapter.add_task("Searchable Task")
-    # Removed search functionality as TaskManager does not support it
-    tasks = adapter.list_tasks()
-    assert any("Searchable" in task["title"] for task in tasks)
+
+    # Add tasks for testing
+    adapter.add_task("Submit Report", "Prepare and submit the final project report by Friday")
+    adapter.add_task("Team Meeting", "Discuss project milestones and deadlines")
+    adapter.add_task("Code Review", "Review the latest pull requests")
+
+    # Test searching for tasks
+    results = adapter.search_tasks("report")
+    assert len(results) == 1
+    assert results[0]["title"] == "Submit Report"
+
+    results = adapter.search_tasks("project")
+    assert len(results) == 2
+
+    results = adapter.search_tasks("review")
+    assert len(results) == 1
+    assert results[0]["title"] == "Code Review"
+
+    results = adapter.search_tasks("nonexistent")
+    assert len(results) == 0

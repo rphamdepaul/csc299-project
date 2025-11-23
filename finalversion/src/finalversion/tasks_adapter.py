@@ -23,4 +23,8 @@ class TasksAdapter:
 
     def search_tasks(self, query):
         """Search tasks by a query."""
-        return self.task_manager.search_tasks(query)
+        query = query.strip('"')  # Remove extra quotation marks from the query
+        tasks = self.task_manager.search_tasks(query)
+        return {
+            task["user_id"]: task for task in tasks
+        }

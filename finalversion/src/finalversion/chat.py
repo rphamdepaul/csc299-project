@@ -1,5 +1,12 @@
+#!/usr/bin/env python3
+
 import sys
 import os
+import pathlib
+
+# Dynamically add the project root to the Python path
+project_root = pathlib.Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
 
 # Ensure the `src` directory is in the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
@@ -7,34 +14,93 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"
 from src.finalversion.pkms import PKMS
 from src.finalversion.improved_task_manager import TaskManager
 
+# Shared counter for generating unique IDs
+id_counter = 1
+
+def generate_id():
+    global id_counter
+    current_id = id_counter
+    id_counter += 1
+    return str(current_id)
+
+# Updated shared counter for user-friendly IDs
+user_friendly_id_counter = 1
+
+def generate_user_friendly_id():
+    global user_friendly_id_counter
+    current_id = user_friendly_id_counter
+    user_friendly_id_counter += 1
+    return str(current_id)
+
 def main():
-    print("Welcome to the Terminal Chat Interface!")
-    print("Type 'help' to see available commands.")
+    if "TEST_MODE" not in os.environ:
+        print("Welcome to the Terminal Chat Interface!")
+        print("Type 'help' to see available commands.")
 
-    print("Initializing PKMS...")
+        print("Initializing PKMS...")
     pkms = PKMS("notes.json")
-    print("PKMS initialized.")
+    if "TEST_MODE" not in os.environ:
+        print("PKMS initialized.")
 
-    print("Initializing TaskManager...")
+        print("Initializing TaskManager...")
     task_manager = TaskManager("tasks.json")
-    print("TaskManager initialized.")
+    if "TEST_MODE" not in os.environ:
+        print("TaskManager initialized.")
 
     commands = {
         "help": lambda: print("\n" + "\n".join([
             "Available commands:",
-            "  add_note <id> <content> - Add a new note",
+            "  add_note <content> - Add a new note",  # Simplified
             "  list_notes - List all notes",
             "  search_notes <query> - Search notes",
-            "  add_task <title> - Add a new task",
+            "  add_task <title> - Add a new task",  # Simplified
             "  list_tasks - List all tasks",
             "  exit - Exit the chat interface",
         ])),
-        "add_note": lambda args: (pkms.add(args[0], " ".join(args[1:])), print(f"Note '{args[0]}' added.")),
-        "list_notes": lambda _: print("\n".join(["Notes:"] + [f"- {note}" for note in pkms.list()])),
-        "search_notes": lambda args: print("\n".join(["Search Results:"] + [f"- {note_id}: {content}" for note_id, content in pkms.search(" ".join(args)).items()])),
-        "add_task": lambda args: (task_manager.add_task(" ".join(args)), print(f"Task '{' '.join(args)}' added.")),
-        "list_tasks": lambda _: print("\n".join(["Tasks:"] + [f"- {task['id']}: {task['title']}" for task in task_manager.list_tasks()])),
+        "add_note": lambda args: (
+            pkms.add(*" ".join(args).split("|", 1)),  # Split input into title and content using the '|' delimiter
+            print("CONFIRMATION: Note added successfully.")
+        ),
+        "list_notes": lambda _: print("\n".join(["Notes:"] + [f"-1: {note}" for note in pkms.list_notes()])),
+        "search_notes": lambda args: (
+            query := " ".join(args).strip('"'),  # Strip extra quotation marks from the query
+            print("\n".join(["Search Results:"] + [
+                f"- {note['id']}: {note['title']} {note['content']}"
+                for note in sorted(pkms.search(query).values(), key=lambda x: x['id'])
+            ]))
+        ),
+        "add_task": lambda args: (
+            task_manager.add_task(generate_user_friendly_id(), " ".join(args)),  # Use all arguments as task title
+            print("CONFIRMATION: Task added successfully.")
+        ),
+        "list_tasks": lambda _: print("\n".join(["Tasks:"] + [f"- {task['user_id']}: {task['title']}" for task in task_manager.list_tasks()])),
+        "search_tasks": lambda args: (
+            query := " ".join(args).strip(),  # Process the query
+            print("\n".join(["Search Results:"] + [
+                f"- {task['user_id']}: {task['title']} {task['notes']}"
+                for task in sorted(task_manager.list_tasks(), key=lambda x: x['user_id'])
+                if query.lower() in task['title'].lower() or query.lower() in task['notes'].lower()
+            ]))
+        ),
+        "delete_all_tasks": lambda _: delete_all_tasks(),
+        "delete_all_notes": lambda _: delete_all_notes(),
     }
+
+    def delete_all_tasks():
+        confirmation = input("Are you sure you want to delete all tasks? This action cannot be undone. (yes/no): ").strip().lower()
+        if confirmation == "yes":
+            task_manager.delete_all_tasks()
+            print("All tasks have been deleted.")
+        else:
+            print("Action canceled. No tasks were deleted.")
+
+    def delete_all_notes():
+        confirmation = input("Are you sure you want to delete all notes? This action cannot be undone. (yes/no): ").strip().lower()
+        if confirmation == "yes":
+            pkms.delete_all_notes()
+            print("All notes have been deleted.")
+        else:
+            print("Action canceled. No notes were deleted.")
 
     while True:
         try:

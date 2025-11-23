@@ -27,10 +27,8 @@ class TaskManager:
         self.tasks: List[Dict] = []
         self.notifications = []  # Store notifications for testing
         self._load()
-        print("DEBUG: Starting notification worker thread")
         self.notification_thread = threading.Thread(target=self._notification_worker, daemon=True)
         self.notification_thread.start()
-        print("DEBUG: Notification worker thread started")
 
     def _load(self):
         try:
@@ -56,12 +54,19 @@ class TaskManager:
     def _save(self):
         self._atomic_write(self.tasks)
 
-    def add_task(self, title: str, notes: str = "", tags: Optional[List[str]] = None, due: Optional[str] = None, priority: str = "medium") -> Dict:
+    def add_task(self, user_id: str, title: str, notes: str = "", tags: Optional[List[str]] = None, due: Optional[str] = None, priority: str = "medium") -> Dict:
         if priority not in ["low", "medium", "high"]:
             raise ValueError("Priority must be one of: low, medium, high.")
-        tid = str(uuid.uuid4())
+
+        # Find the lowest unused ID greater than 0
+        existing_ids = {task["user_id"] for task in self.tasks if "user_id" in task}
+        new_id = 1
+        while new_id in existing_ids:
+            new_id += 1
+
         task = {
-            "id": tid,
+            "id": str(uuid.uuid4()),  # Internal unique ID
+            "user_id": new_id,  # User-friendly ID
             "title": title,
             "notes": notes or "",
             "tags": tags or [],
@@ -134,6 +139,11 @@ class TaskManager:
             self._save()
             return True
 
+    def delete_all_tasks(self):
+        """Delete all tasks permanently."""
+        self.tasks = []
+        self._save()
+
     def undo(self, task_id: str, steps: int = 1) -> bool:
         t = self.get_task(task_id, include_deleted=True)
         if not t:
@@ -160,19 +170,24 @@ class TaskManager:
         self._save()
         return True
 
+    def search_tasks(self, query: str) -> List[Dict]:
+        """Search tasks by a query in title or notes."""
+        query = query.strip('"').lower()  # Sanitize the query
+        tasks = self.list_tasks()
+        results = [
+            task for task in tasks
+            if query in task.get("title", "").lower() or query in task.get("notes", "").lower()
+        ]
+        return results
+
     def _notification_worker(self):
         while True:
             now = datetime.now(timezone.utc)
-            print(f"DEBUG: Current time: {now}")
-            print(f"DEBUG: Total tasks in memory: {len(self.tasks)}")
             for task in self.tasks:
-                print(f"DEBUG: Task details: {task}")
                 if task.get("due") and not task.get("notified"):
                     due_time = datetime.fromisoformat(task["due"][:-1]).replace(tzinfo=timezone.utc)
-                    print(f"DEBUG: Task due time: {due_time}")
                     if now >= due_time:
                         notification = f"Notification: Task '{task['title']}' is due!"
-                        print(f"DEBUG: Triggering notification: {notification}")
                         self.notifications.append(notification)
                         print(notification)
                         task["notified"] = True
