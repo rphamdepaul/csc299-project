@@ -38,9 +38,19 @@ def chat_interface():
             notes = pkms.list()
             print("Notes:")
             for note in notes:
-                print(f"- {note['id']}: {note['title']}")
+                priority = note.get('priority', 'medium')
+                print(f"- {note['id']}: {note['title']} (priority: {priority})")
             current_list_type = 'notes'
             current_list = notes
+        elif user_input.startswith("search notes "):
+            _, _, query = user_input.partition("search notes ")
+            results = pkms.search(query.strip())
+            print("Notes:")
+            for note in results:
+                priority = note.get('priority', 'medium')
+                print(f"- {note['id']}: {note['title']} (priority: {priority})")
+            current_list_type = 'notes'
+            current_list = results
         elif user_input.startswith("delete note "):
             _, _, note_id = user_input.partition("delete note ")
             try:
@@ -135,6 +145,7 @@ def chat_interface():
             print("add note <id> <content>")
             print("add note \"Title\": Content")
             print("list notes")
+            print("search notes <query>")
             print("delete note <id>")
             print("delete all notes")
             print("add task <description> <due_date> <priority>")
@@ -186,7 +197,8 @@ def main():
                 notes = pkms.list()
                 print("Notes:")
                 for note in notes:
-                    print(f"- {note['id']}: {note['title']}")
+                    priority = note.get('priority', 'medium')
+                    print(f"- {note['id']}: {note['title']} (priority: {priority})")
             elif args.action == "delete":
                 pkms.delete(args.id)
                 print(f"Note '{args.id}' deleted.")
