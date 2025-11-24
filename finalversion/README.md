@@ -45,10 +45,15 @@ All code is written in Python and runs portably on Windows, macOS, and Linux. No
    pip install -r requirements.txt
    ```
 2. **Start the chat interface** (in your terminal):
-   ```bash
-   python src/finalversion/cli.py chat
-   ```
-   This will open an interactive prompt in your terminal where you can manage notes and tasks using natural language commands. Type `help` to see all available commands.
+    - From the `csc299-project` directory:
+       ```bash
+       PYTHONPATH=finalversion/src python3 finalversion/src/finalversion/cli.py chat
+       ```
+    - From the `csc299-project/finalversion` directory:
+       ```bash
+       PYTHONPATH=$(pwd)/src python3 src/finalversion/cli.py chat
+       ```
+    This will open an interactive prompt in your terminal where you can manage notes and tasks using natural language commands. Type `help` to see all available commands.
 
 3. **Run CLI commands directly** (in your terminal):
    - Add a note:
@@ -76,7 +81,16 @@ All code is written in Python and runs portably on Windows, macOS, and Linux. No
      python src/finalversion/cli.py tasks delete <task_id>
      ```
 
-**Tip:** All commands can be run directly in your terminal from the `csc299-project/finalversion` directory. For the chat interface, type commands interactively after running `python src/finalversion/cli.py chat`.
+**Tip:**
+- If you are running from the `csc299-project` directory, use:
+   ```bash
+   PYTHONPATH=finalversion/src python3 finalversion/src/finalversion/cli.py chat
+   ```
+- If you are running from the `csc299-project/finalversion` directory, use:
+   ```bash
+   python src/finalversion/cli.py chat
+   ```
+This ensures Python can find the `finalversion` package. If you run from another directory or without setting `PYTHONPATH`, you may get a `ModuleNotFoundError`.
 
 
 ## Chat Interface Commands & Syntax
