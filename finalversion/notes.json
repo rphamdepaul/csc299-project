@@ -1,1 +1,10 @@
-{}
+{
+    "1": {
+        "id": 1,
+        "title": "Research Summary",
+        "content": "This note contains a comprehensive summary of the research conducted over the past semester, including methodology, key findings, data analysis, and recommendations for future work. The summary covers multiple topics and provides detailed insights into each area explored.",
+        "priority": "medium",
+        "created_at": "2025-11-23T21:19:22.477285",
+        "updated_at": "2025-11-23T21:19:22.477361"
+    }
+}

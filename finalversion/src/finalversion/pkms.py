@@ -8,8 +8,8 @@ class PKMS:
         self.storage_path = Path(storage_path)
         self.lock = Lock()
         self.storage_path.parent.mkdir(parents=True, exist_ok=True)
-        if not self.storage_path.exists():
-            self._atomic_save({})
+        if not self.storage_path.is_file():
+            self._atomic_save({})  # Explicitly create the file with an empty dictionary
 
     def _atomic_save(self, data):
         temp_path = self.storage_path.with_suffix('.tmp')
@@ -19,27 +19,52 @@ class PKMS:
 
     def _load_data(self):
         with self.storage_path.open('r') as file:
-            return json.load(file)
+            data = json.load(file)
+            return data
 
-    def add(self, title, content):
+    def add(self, title, content, priority="medium"):
         with self.lock:
             data = self._load_data()
-            # Check for duplicate titles
-            if any(note["title"] == title for note in data.values()):
+            if any(note["title"] == title for note in data.values() if isinstance(note, dict)):
                 raise ValueError(f"A note with the title '{title}' already exists.")
-
-            # Find the lowest unused ID greater than 0
-            existing_ids = {note["id"] for note in data.values() if "id" in note}
+            existing_ids = {note["id"] for note in data.values() if isinstance(note, dict) and "id" in note}
             new_id = 1
             while new_id in existing_ids:
                 new_id += 1
-
-            # Ensure title and content are sanitized and validated
             sanitized_title = title.strip().strip('"') if title.strip() else "Untitled"
-            sanitized_content = content.replace('"', '').strip()  # Remove all quotation marks and extra spaces
-
+            sanitized_content = content.replace('"', '').strip()
+            if priority not in ["low", "medium", "high"]:
+                priority = "medium"
             note = {
-                "id": new_id,  # User-friendly ID
+                "id": new_id,
+                "title": sanitized_title,
+                "content": sanitized_content,
+                "priority": priority,
+                "created_at": self._now_iso(),
+                "updated_at": self._now_iso(),
+            }
+            data[str(new_id)] = note
+            self._atomic_save(data)
+            return note
+
+    def add_auto(self, text):
+        with self.lock:
+            data = self._load_data()
+            existing_ids = {note["id"] for note in data.values() if isinstance(note, dict) and "id" in note}
+            new_id = 1
+            while new_id in existing_ids:
+                new_id += 1
+            # Require quoted title before colon
+            import re
+            match = re.match(r'"([^"]+)":(.*)', text)
+            if match:
+                sanitized_title = match.group(1).strip()
+                sanitized_content = match.group(2).replace('"', '').strip()
+            else:
+                sanitized_title = "Untitled"
+                sanitized_content = text.replace('"', '').strip()
+            note = {
+                "id": new_id,
                 "title": sanitized_title,
                 "content": sanitized_content,
                 "created_at": self._now_iso(),
@@ -47,6 +72,7 @@ class PKMS:
             }
             data[str(new_id)] = note
             self._atomic_save(data)
+            return note
 
     def list(self):
         with self.lock:
@@ -75,24 +101,7 @@ class PKMS:
             else:
                 raise ValueError(f"Note with ID {note_id} does not exist.")
 
-    def update(self, note_id, new_content):
-        """Update the content of an existing note."""
-        with self.lock:
-            data = self._load_data()
-            if note_id not in data:
-                raise ValueError(f"Note with ID {note_id} does not exist.")
-            data[note_id] = new_content
-            self._atomic_save(data)
-
-    def export_notes(self, export_path):
-        """Export all notes to a specified file path."""
-        with self.lock:
-            data = self._load_data()
-            with open(export_path, 'w') as export_file:
-                json.dump(data, export_file, indent=4)
-
-    def delete_all_notes(self):
-        """Delete all notes permanently."""
+    def delete_all(self):
         with self.lock:
             self._atomic_save({})
 
@@ -100,13 +109,3 @@ class PKMS:
         """Return the current time in ISO format."""
         from datetime import datetime
         return datetime.now().isoformat()
-
-    def list_notes(self) -> List[str]:
-        # Return a formatted list of notes with their titles and content only
-        with self.lock:
-            data = self._load_data()
-            return [
-                f"- \"{note['title']}\" \"{note['content']}\""
-                for note in data.values()
-                if 'title' in note and 'content' in note
-            ]

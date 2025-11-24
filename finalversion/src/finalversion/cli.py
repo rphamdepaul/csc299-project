@@ -1,87 +1,210 @@
 import argparse
-from src.finalversion.pkms import PKMS
-from src.finalversion.tasks_adapter import TasksAdapter
-from src.finalversion.chat import main as chat_main
+import sys
+import re
+from datetime import datetime
+from finalversion.pkms import PKMS
+from finalversion.improved_task_manager import TaskManager
+from finalversion.ai_agent import summarize_text
 
-def main():
-    parser = argparse.ArgumentParser(description="CLI for managing notes and tasks.")
-    subparsers = parser.add_subparsers(dest="command")
-
-    # Notes commands
-    notes_parser = subparsers.add_parser("notes", help="Manage notes")
-    notes_subparsers = notes_parser.add_subparsers(dest="action")
-
-    add_note_parser = notes_subparsers.add_parser("add", help="Add a new note")
-    add_note_parser.add_argument("id", help="Note ID")
-    add_note_parser.add_argument("content", help="Note content")
-
-    list_notes_parser = notes_subparsers.add_parser("list", help="List all notes")
-
-    delete_note_parser = notes_subparsers.add_parser("delete", help="Delete a note")
-    delete_note_parser.add_argument("id", help="Note ID")
-
-    # Tasks commands
-    tasks_parser = subparsers.add_parser("tasks", help="Manage tasks")
-    tasks_subparsers = tasks_parser.add_subparsers(dest="action")
-
-    add_task_parser = tasks_subparsers.add_parser("add", help="Add a new task")
-    add_task_parser.add_argument("title", help="Task title")
-
-    list_tasks_parser = tasks_subparsers.add_parser("list", help="List all tasks")
-
-    delete_task_parser = tasks_subparsers.add_parser("delete", help="Delete a task")
-    delete_task_parser.add_argument("id", help="Task ID")
-
-    # Chat command
-    subparsers.add_parser("chat", help="Launch the chat interface")
-
-    # Shorthand commands
-    shorthand_parser = subparsers.add_parser("add", help="Shorthand for adding tasks or notes")
-    shorthand_parser.add_argument("type", choices=["note", "task"], help="Type of item to add")
-    shorthand_parser.add_argument("id_or_title", help="Note ID or Task title")
-    shorthand_parser.add_argument("content", nargs="?", help="Note content (only for notes)")
-
-    args = parser.parse_args()
-
+def chat_interface():
     pkms = PKMS("notes.json")
-    tasks_adapter = TasksAdapter("tasks.json")
-
-    if args.command == "notes":
-        if args.action == "add":
-            pkms.add(args.id, args.content)
-            print(f"Note '{args.id}' added.")
-        elif args.action == "list":
+    task_manager = TaskManager()
+    current_list_type = None
+    current_list = None
+    print("Welcome to the PKMS/TaskManager chat interface!")
+    print("Type 'help' for available commands.")
+    while True:
+        user_input = input("chat> ").strip()
+        if user_input == "exit":
+            print("Exiting chat interface.")
+            break
+        elif user_input.startswith("add note "):
+            # Format: add note <id> <content> OR add note "Title": Content
+            match = re.match(r'add note "([^"]+)":\s*(.*)', user_input)
+            if match:
+                title = match.group(1)
+                content = match.group(2)
+                note = pkms.add(title, content)
+                print(f"Note '{title}' added.")
+            else:
+                parts = user_input.split(maxsplit=3)
+                if len(parts) >= 4:
+                    _, _, note_id, content = parts
+                    note = pkms.add(note_id, content)
+                    print(f"Note '{note_id}' added.")
+                else:
+                    print("Usage: add note <id> <content> OR add note \"Title\": Content")
+        elif user_input == "list notes":
             notes = pkms.list()
             print("Notes:")
             for note in notes:
-                print(f"- {note}")
-        elif args.action == "delete":
-            pkms.delete(args.id)
-            print(f"Note '{args.id}' deleted.")
-
-    elif args.command == "tasks":
-        if args.action == "add":
-            tasks_adapter.add_task(args.title)
-            print(f"Task '{args.title}' added.")
-        elif args.action == "list":
-            tasks = tasks_adapter.list_tasks()
+                print(f"- {note['id']}: {note['title']}")
+            current_list_type = 'notes'
+            current_list = notes
+        elif user_input.startswith("delete note "):
+            _, _, note_id = user_input.partition("delete note ")
+            try:
+                pkms.delete(note_id.strip())
+                print(f"Note '{note_id.strip()}' deleted.")
+            except Exception as e:
+                print(f"Error: {e}")
+        elif user_input == "delete all notes":
+            try:
+                pkms.delete_all()
+                print("All notes deleted.")
+            except Exception as e:
+                print(f"Error: {e}")
+        elif user_input.startswith("add task "):
+            _, _, rest = user_input.partition("add task ")
+            match = re.match(r'(.+?)\s+(\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}(?: [APMapm]{2})?)\s+(low|medium|high)\s*$', rest)
+            if match:
+                title = match.group(1).strip()
+                due_raw = match.group(2).strip()
+                priority = match.group(3)
+                try:
+                    if re.search(r'[APMapm]{2}', due_raw):
+                        due_dt = datetime.strptime(due_raw, "%Y-%m-%d %I:%M %p")
+                    else:
+                        due_dt = datetime.strptime(due_raw, "%Y-%m-%d %H:%M")
+                    due_24 = due_dt.strftime("%Y-%m-%d %H:%M")
+                except Exception:
+                    due_24 = due_raw
+                task_manager.add_task(user_id="default", title=title, priority=priority, due=due_raw, due_24=due_24)
+                print(f"Task '{title}' added with due date '{due_raw}' and priority '{priority}'.")
+            else:
+                task_manager.add_task(user_id="default", title=rest.strip())
+                print(f"Task '{rest.strip()}' added.")
+        elif user_input == "list tasks":
+            tasks = task_manager.list_tasks()
             print("Tasks:")
-            for task in tasks:
-                print(f"- {task['title']}")
-        elif args.action == "delete":
-            tasks_adapter.delete_task(args.id)
-            print(f"Task '{args.id}' deleted.")
+            for idx, task in enumerate(tasks, 1):
+                priority = task.get('priority', 'medium')
+                due = task.get('due', None)
+                due_str = f", due: {due}" if due else ""
+                print(f"{idx}. {task['title']} (priority: {priority}{due_str})")
+            current_list_type = 'tasks'
+            current_list = tasks
+        elif user_input.startswith("delete task "):
+            _, _, idx_str = user_input.partition("delete task ")
+            try:
+                idx = int(idx_str.strip())
+                success = task_manager.delete_task_by_index(idx)
+                if success:
+                    print(f"Task {idx} deleted.")
+                else:
+                    print(f"Task {idx} not found.")
+            except Exception as e:
+                print(f"Error: {e}")
+        elif user_input == "delete all tasks":
+            try:
+                count = task_manager.delete_all_tasks()
+                print(f"All tasks deleted ({count} tasks).")
+            except Exception as e:
+                print(f"Error: {e}")
+        elif user_input.startswith("ai agent summarize "):
+            _, _, idx_str = user_input.partition("ai agent summarize ")
+            idx_str = idx_str.strip()
+            if not idx_str.isdigit():
+                print("Please provide a valid index number.")
+                continue
+            idx = int(idx_str)
+            if current_list_type == 'notes':
+                notes = current_list
+                if 1 <= idx <= len(notes):
+                    note = notes[idx-1]
+                    text = note.get("content", note.get("title", ""))
+                    print(f"Summarizing Note {idx}: {text}")
+                    summary = summarize_text(text)
+                    print(f"AI Summary: {summary}")
+                else:
+                    print("Index out of range for notes.")
+            elif current_list_type == 'tasks':
+                tasks = current_list
+                if 1 <= idx <= len(tasks):
+                    task = tasks[idx-1]
+                    text = task.get("title", "")
+                    print(f"Summarizing Task {idx}: {text}")
+                    summary = summarize_text(text)
+                    print(f"AI Summary: {summary}")
+                else:
+                    print("Index out of range for tasks.")
+            else:
+                print("Please run 'list notes' or 'list tasks' before summarizing.")
+        elif user_input == "help":
+            print("Available commands:")
+            print("add note <id> <content>")
+            print("add note \"Title\": Content")
+            print("list notes")
+            print("delete note <id>")
+            print("delete all notes")
+            print("add task <description> <due_date> <priority>")
+            print("add task <description>")
+            print("list tasks")
+            print("delete task <index>")
+            print("delete all tasks")
+            print("ai agent summarize <index>")
+            print("help")
+            print("exit")
+        else:
+            print("Unknown command. Type 'help' for available commands.")
 
-    elif args.command == "chat":
-        chat_main()
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "chat":
+        chat_interface()
+    else:
+        parser = argparse.ArgumentParser(description="PKMS and TaskManager CLI")
+        subparsers = parser.add_subparsers(dest="command")
 
-    elif args.command == "add":
-        if args.type == "note":
-            pkms.add(args.id_or_title, args.content)
-            print(f"Note '{args.id_or_title}' added.")
-        elif args.type == "task":
-            tasks_adapter.add_task(args.id_or_title)
-            print(f"Task '{args.id_or_title}' added.")
+        # Notes commands
+        notes_parser = subparsers.add_parser("notes")
+        notes_subparsers = notes_parser.add_subparsers(dest="action")
+        notes_add = notes_subparsers.add_parser("add")
+        notes_add.add_argument("id")
+        notes_add.add_argument("content")
+        notes_list = notes_subparsers.add_parser("list")
+        notes_delete = notes_subparsers.add_parser("delete")
+        notes_delete.add_argument("id")
+
+        # Tasks commands
+        tasks_parser = subparsers.add_parser("tasks")
+        tasks_subparsers = tasks_parser.add_subparsers(dest="action")
+        tasks_add = tasks_subparsers.add_parser("add")
+        tasks_add.add_argument("title")
+        tasks_list = tasks_subparsers.add_parser("list")
+        tasks_delete = tasks_subparsers.add_parser("delete")
+        tasks_delete.add_argument("id")
+
+        args = parser.parse_args()
+        pkms = PKMS("notes.json")
+        task_manager = TaskManager()
+
+        if args.command == "notes":
+            if args.action == "add":
+                pkms.add(args.id, args.content)
+                print(f"Note '{args.id}' added.")
+            elif args.action == "list":
+                notes = pkms.list()
+                print("Notes:")
+                for note in notes:
+                    print(f"- {note['id']}: {note['title']}")
+            elif args.action == "delete":
+                pkms.delete(args.id)
+                print(f"Note '{args.id}' deleted.")
+        elif args.command == "tasks":
+            if args.action == "add":
+                task_manager.add_task(user_id="default", title=args.title)
+                print(f"Task '{args.title}' added.")
+            elif args.action == "list":
+                tasks = task_manager.list_tasks()
+                print("Tasks:")
+                for task in tasks:
+                    print(f"- {task['title']}")
+            elif args.action == "delete":
+                success = task_manager.delete_task_by_index(int(args.id))
+                if success:
+                    print(f"Task {args.id} deleted.")
+                else:
+                    print(f"Task {args.id} not found.")
 
 if __name__ == "__main__":
     main()

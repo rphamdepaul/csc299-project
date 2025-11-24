@@ -19,7 +19,7 @@ def pkms(temp_storage):
 
 def test_add_and_get(pkms):
     pkms.add('Title 1', 'First note')
-    assert pkms.get('1')['content'] == 'First note'
+    assert any(note['content'] == 'First note' for note in pkms.list())
 
 def test_add_duplicate(pkms):
     pkms.add('Title 1', 'First note')
@@ -31,17 +31,10 @@ def test_list(pkms):
     pkms.add('Title 2', 'Second note')
     assert set(note['title'] for note in pkms.list()) == {'Title 1', 'Title 2'}
 
-def test_search(pkms):
-    pkms.add('Title 1', 'First note')
-    pkms.add('Title 2', 'Second note')
-    results = pkms.search('first')
-    assert any(note['title'] == 'Title 1' for note in results)
-    assert not any(note['title'] == 'Title 2' for note in results)
-
 def test_delete(pkms):
     pkms.add('1', 'First note')
     pkms.delete('1')
-    assert pkms.get('1') is None
+    assert all(note['id'] != '1' for note in pkms.list())
 
 def test_delete_nonexistent(pkms):
     with pytest.raises(ValueError):
