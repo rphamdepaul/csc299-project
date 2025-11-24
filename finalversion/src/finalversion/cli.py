@@ -19,21 +19,36 @@ def chat_interface():
             print("Exiting chat interface.")
             break
         elif user_input.startswith("add note "):
-            # Format: add note <id> <content> OR add note "Title": Content
-            match = re.match(r'add note "([^"]+)":\s*(.*)', user_input)
+            # Format: add note <id> <content> [priority] OR add note "Title": Content [priority]
+            match = re.match(r'add note "([^"]+)":\s*(.+?)\s+(low|medium|high)\s*$', user_input)
             if match:
                 title = match.group(1)
                 content = match.group(2)
-                note = pkms.add(title, content)
-                print(f"Note '{title}' added.")
+                priority = match.group(3)
+                note = pkms.add(title, content, priority)
+                print(f"Note '{title}' added with priority '{priority}'.")
             else:
-                parts = user_input.split(maxsplit=3)
-                if len(parts) >= 4:
-                    _, _, note_id, content = parts
-                    note = pkms.add(note_id, content)
-                    print(f"Note '{note_id}' added.")
+                match = re.match(r'add note "([^"]+)":\s*(.*)', user_input)
+                if match:
+                    title = match.group(1)
+                    content = match.group(2)
+                    note = pkms.add(title, content)
+                    print(f"Note '{title}' added.")
                 else:
-                    print("Usage: add note <id> <content> OR add note \"Title\": Content")
+                    parts = user_input.split()
+                    if len(parts) >= 4:
+                        if parts[-1] in ["low", "medium", "high"]:
+                            note_id = parts[2]
+                            priority = parts[-1]
+                            content = " ".join(parts[3:-1])
+                            note = pkms.add(note_id, content, priority)
+                            print(f"Note '{note_id}' added with priority '{priority}'.")
+                        else:
+                            _, _, note_id, content = user_input.split(maxsplit=3)
+                            note = pkms.add(note_id, content)
+                            print(f"Note '{note_id}' added.")
+                    else:
+                        print("Usage: add note <id> <content> [priority] OR add note \"Title\": Content [priority]")
         elif user_input == "list notes":
             notes = pkms.list()
             print("Notes:")
@@ -142,8 +157,8 @@ def chat_interface():
                 print("Please run 'list notes' or 'list tasks' before summarizing.")
         elif user_input == "help":
             print("Available commands:")
-            print("add note <id> <content>")
-            print("add note \"Title\": Content")
+            print("add note <id> <content> [priority]")
+            print("add note \"Title\": Content [priority]")
             print("list notes")
             print("search notes <query>")
             print("delete note <id>")

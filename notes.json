@@ -1,26 +1,18 @@
 {
-    "1": {
-        "id": 1,
-        "title": "Shopping List",
-        "content": "Milk, eggs, bread, cheese",
-        "priority": "medium",
-        "created_at": "2025-11-23T23:18:37.074045",
-        "updated_at": "2025-11-23T23:18:37.074177"
-    },
     "2": {
         "id": 2,
         "title": "Meeting Notes",
         "content": "Discuss Q4 goals and project timeline",
         "priority": "medium",
-        "created_at": "2025-11-23T23:18:43.259310",
-        "updated_at": "2025-11-23T23:18:43.259332"
+        "created_at": "2025-11-23T23:23:41.353733",
+        "updated_at": "2025-11-23T23:23:41.353755"
     },
     "3": {
         "id": 3,
-        "title": "Book Ideas",
-        "content": "Fantasy novel about time travel",
+        "title": "1",
+        "content": "Buy groceries",
         "priority": "medium",
-        "created_at": "2025-11-23T23:18:49.357511",
-        "updated_at": "2025-11-23T23:18:49.357529"
+        "created_at": "2025-11-23T23:23:46.580126",
+        "updated_at": "2025-11-23T23:23:46.580147"
     }
 }
